@@ -1,17 +1,20 @@
 # frozen_string_literal: true
 
 class JobsController < ApplicationController
-  before_action :set_job, only: %i[show destroy]
+  before_action :set_job, only: %i[destroy]
 
   # GET /jobs
   def index
-    @jobs = Job.all
+    @jobs = Content.where content_type: 'job'
     render json: @jobs
   end
 
   # GET /jobs/1
   def show
-    render json: @job
+    @job = Content.includes(:content_blocks)
+                  .where(content_type: 'job')
+                  .find(params[:id])
+    render json: @job, include: { content_blocks: { except: [:content_id] } }
   end
 
   # POST /jobs
@@ -46,7 +49,7 @@ class JobsController < ApplicationController
 
   # Use callbacks to share common setup or constraints between actions.
   def set_job
-    @job = Job.find(params[:id])
+    @job = Content.where(content_type: 'job').find(params[:id])
   end
 
   # Only allow a trusted parameter "white list" through.

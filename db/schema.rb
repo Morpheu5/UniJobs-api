@@ -10,16 +10,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_05_10_140742) do
+ActiveRecord::Schema.define(version: 2018_06_12_123028) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
-  create_table "jobs", force: :cascade do |t|
-    t.string "title"
+  create_table "content_blocks", force: :cascade do |t|
+    t.bigint "content_id"
+    t.string "block_type"
+    t.integer "order"
     t.jsonb "body"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.index ["content_id"], name: "index_content_blocks_on_content_id"
+  end
+
+  create_table "contents", force: :cascade do |t|
+    t.string "content_type"
+    t.jsonb "title"
+    t.jsonb "metadata"
   end
 
   create_table "users", force: :cascade do |t|
@@ -34,4 +41,5 @@ ActiveRecord::Schema.define(version: 2018_05_10_140742) do
     t.index ["username"], name: "index_users_on_username", unique: true
   end
 
+  add_foreign_key "content_blocks", "contents"
 end
