@@ -19,11 +19,10 @@ class JobsController < ApplicationController
 
   # POST /jobs
   def create
-    @job = Job.new(job_params)
-    @job.body = params[:job][:body]
+    @job = Content.new(job_params)
 
     if @job.save
-      render json: @job, status: :created, location: @job
+      render json: @job, status: :created, location: job_path(@job)
     else
       render json: @job.errors, status: :unprocessable_entity
     end
@@ -31,8 +30,8 @@ class JobsController < ApplicationController
 
   # PATCH/PUT /jobs/1
   def update
-    @job = Job.find(params[:id])
-    @job.body = params[:job][:body]
+    @job = Content.where(content_type: 'job').find(params[:id])
+
     if @job.update(job_params)
       render json: @job
     else
@@ -54,6 +53,6 @@ class JobsController < ApplicationController
 
   # Only allow a trusted parameter "white list" through.
   def job_params
-    params.require(:job).permit(:title)
+    params.require(:data).permit(:content_type, :title => {}, :metadata => {})
   end
 end

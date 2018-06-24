@@ -13,10 +13,13 @@
 ActiveRecord::Schema.define(version: 2018_06_12_123028) do
 
   # These are extensions that must be enabled in order to support this database
+  enable_extension "pgcrypto"
   enable_extension "plpgsql"
+  enable_extension "uuid-ossp"
 
   create_table "content_blocks", force: :cascade do |t|
     t.bigint "content_id"
+    t.uuid "uuid", default: -> { "uuid_generate_v4()" }
     t.string "block_type"
     t.integer "order"
     t.jsonb "body"
@@ -24,21 +27,10 @@ ActiveRecord::Schema.define(version: 2018_06_12_123028) do
   end
 
   create_table "contents", force: :cascade do |t|
+    t.uuid "uuid", default: -> { "uuid_generate_v4()" }
     t.string "content_type"
     t.jsonb "title"
     t.jsonb "metadata"
-  end
-
-  create_table "users", force: :cascade do |t|
-    t.string "username"
-    t.string "email"
-    t.string "first_name"
-    t.string "middle_names"
-    t.string "last_name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["email"], name: "index_users_on_email", unique: true
-    t.index ["username"], name: "index_users_on_username", unique: true
   end
 
   add_foreign_key "content_blocks", "contents"
