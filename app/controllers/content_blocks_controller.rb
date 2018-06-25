@@ -3,6 +3,8 @@
 class ContentBlocksController < ApplicationController
   before_action :set_content_block, only: %i[show update destroy]
 
+  # GET /contents/1/content_blocks
+  # Probably not necessary
   def index
     @content_blocks = ContentBlock.where(content_id: params[:content_id]).all
     render json: @content_blocks
