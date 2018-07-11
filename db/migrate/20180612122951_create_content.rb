@@ -7,6 +7,8 @@ class CreateContent < ActiveRecord::Migration[5.2]
       t.string :content_type
       t.jsonb :title
       t.jsonb :metadata
+
+      t.timestamps
     end
   end
 end

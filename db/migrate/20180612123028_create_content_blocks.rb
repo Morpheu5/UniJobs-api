@@ -8,6 +8,8 @@ class CreateContentBlocks < ActiveRecord::Migration[5.2]
       t.string :block_type
       t.integer :order
       t.jsonb :body
+
+      t.timestamps
     end
   end
 end

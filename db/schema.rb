@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_06_12_123028) do
+ActiveRecord::Schema.define(version: 2018_07_11_101005) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -23,6 +23,8 @@ ActiveRecord::Schema.define(version: 2018_06_12_123028) do
     t.string "block_type"
     t.integer "order"
     t.jsonb "body"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["content_id"], name: "index_content_blocks_on_content_id"
   end
 
@@ -31,7 +33,22 @@ ActiveRecord::Schema.define(version: 2018_06_12_123028) do
     t.string "content_type"
     t.jsonb "title"
     t.jsonb "metadata"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "organization_id"
+    t.index ["organization_id"], name: "index_contents_on_organization_id"
+  end
+
+  create_table "organizations", force: :cascade do |t|
+    t.string "name"
+    t.bigint "parent_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_organizations_on_name"
+    t.index ["parent_id"], name: "index_organizations_on_parent_id"
   end
 
   add_foreign_key "content_blocks", "contents"
+  add_foreign_key "contents", "organizations"
+  add_foreign_key "organizations", "organizations", column: "parent_id"
 end
