@@ -9,9 +9,11 @@
 # Read more: https://github.com/cyu/rack-cors
 
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
+  os = ['https://www.unijobs.it/', 'https://unijobs.it/']
+  os.push %r{\Ahttps?:\/\/localhost:808[01]\z} if Rails.env.development?
+
   allow do
-    origins   'https://unijobs.it/',
-              %r{\Ahttps?:\/\/localhost:808[01]\z}
+    origins   os
 
     resource  '*',
               headers: :any,
