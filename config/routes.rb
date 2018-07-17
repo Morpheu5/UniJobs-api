@@ -7,4 +7,5 @@ Rails.application.routes.draw do
   resources :contents do
     resources :content_blocks
   end
+  resources :organizations
 end
