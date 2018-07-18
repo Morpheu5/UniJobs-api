@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 class Organization < ApplicationRecord
-  belongs_to :organization, foreign_key: 'parent_id', optional: true
-  has_many :organizations, foreign_key: 'parent_id'
+  belongs_to :organization, inverse_of: :organization, foreign_key: 'parent_id', optional: true
+  has_many :organizations, inverse_of: :organization, foreign_key: 'parent_id'
   has_many :contents
 
-  def self.find_by_name_parts(name_parts)
+  def self.find_by(name_parts:)
     prepared_name_parts = name_parts.map { |n| "%#{n}%" }
     sql_query = <<-SQL
       WITH RECURSIVE search_tree AS (

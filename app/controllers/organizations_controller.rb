@@ -3,7 +3,7 @@
 class OrganizationsController < ApplicationController
   # GET /organizations(?q=this+and+that)
   def index
-    os = params[:q] ? Organization.find_by_name_parts(params[:q].split(' ')) : Organization.all
+    os = params[:q] ? Organization.find_by(name_parts: params[:q].split(' ')) : Organization.all
     @organizations = make_tree(os.map(&:attributes))
     render json: @organizations
   end
