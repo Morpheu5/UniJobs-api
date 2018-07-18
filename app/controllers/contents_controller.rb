@@ -15,12 +15,24 @@ class ContentsController < ApplicationController
 
   # GET /contents/1
   def show
-    if params[:content_type]
-      @content = Content.includes(:content_blocks).where(content_type: params[:content_type]).find(params[:id])
-    else
-      @content = Content.includes(:content_blocks).find(params[:id])
-    end
-    render json: @content, include: { content_blocks: { except: [:content_id] } }
+    @content = if params[:content_type]
+                 Content.includes(:content_blocks, :organization)
+                        .where(content_type: params[:content_type])
+                        .find(params[:id])
+               else
+                 Content.includes(%i[content_blocks organization])
+                        .find(params[:id])
+               end
+    render  json: @content,
+            except: %i[organization_id],
+            include: {
+              organization: {
+                except: %i[parent_id created_at updated_at]
+              },
+              content_blocks: {
+                except: [:content_id]
+              }
+            }
   end
 
   # POST /contents
