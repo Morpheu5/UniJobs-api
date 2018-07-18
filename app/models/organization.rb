@@ -3,7 +3,7 @@
 class Organization < ApplicationRecord
   belongs_to :organization, inverse_of: :organization, foreign_key: 'parent_id', optional: true
   has_many :organizations, inverse_of: :organization, foreign_key: 'parent_id'
-  has_many :contents
+  has_many :contents, inverse_of: :contents
 
   def self.find_by(name_parts:)
     prepared_name_parts = name_parts.map { |n| "%#{n}%" }
