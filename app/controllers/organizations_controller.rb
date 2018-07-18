@@ -8,10 +8,22 @@ class OrganizationsController < ApplicationController
     render json: @organizations
   end
 
+  def show
+    @organization = Organization.find(params[:id])
+    render json: @organization
+  end
+
+  # GET /organizations/:id/ancestors
+  def ancestors
+    @ancestors = Organization.find_ancestors(id: params[:id])
+    render json: @ancestors
+  end
+
   private
 
   def make_tree(list)
-    hash = list.map { |l| [l['id'], l] }.to_h
+    hash = list.map { |l| [l['id'], l.except("created_at", "updated_at")] }.to_h
+    puts hash
     keys = hash.keys
 
     keys.each do |k|

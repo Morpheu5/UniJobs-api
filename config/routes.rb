@@ -7,5 +7,9 @@ Rails.application.routes.draw do
   resources :contents do
     resources :content_blocks
   end
-  resources :organizations
+  resources :organizations do
+    member do
+      get 'ancestors'
+    end
+  end
 end

@@ -16,7 +16,7 @@ class ContentsController < ApplicationController
   # GET /contents/1
   def show
     @content = if params[:content_type]
-                 Content.includes(:content_blocks, :organization)
+                 Content.includes(%i[content_blocks organization])
                         .where(content_type: params[:content_type])
                         .find(params[:id])
                else
