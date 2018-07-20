@@ -21,7 +21,7 @@ class Organization < ApplicationRecord
       ), results AS (
           SELECT DISTINCT *
           FROM search_tree
-          WHERE full_name ILIKE ALL (ARRAY [?]) OR full_short_name ILIKE ALL (ARRAY [?])
+          WHERE full_name || full_short_name ILIKE ALL (ARRAY [?])
       ), parents AS (
         WITH RECURSIVE parents_tree AS (
           SELECT id, parent_id, name, short_name FROM results
@@ -32,7 +32,7 @@ class Organization < ApplicationRecord
       )
       SELECT * FROM parents
     SQL
-    find_by_sql([sql_query, prepared_name_parts, prepared_name_parts])
+    find_by_sql([sql_query, prepared_name_parts])
   end
 
   def self.find_ancestors(id:)
