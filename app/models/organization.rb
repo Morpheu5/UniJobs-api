@@ -42,15 +42,15 @@ class Organization < ApplicationRecord
   def self.find_ancestors(id:)
     sql_query = <<-SQL
     WITH RECURSIVE tree AS (
-      SELECT id, name, parent_id, ARRAY[id] AS path, name AS full_name
+      SELECT id, name, short_name, parent_id, ARRAY[id] AS path, name AS full_name
       FROM #{table_name}
       WHERE id = ?
       UNION
-      SELECT t.id, t.name, t.parent_id, path || t.id, t.name || '|' || tree.full_name
+      SELECT t.id, t.name, t.short_name, t.parent_id, path || t.id, t.name || '|' || tree.full_name
       FROM tree JOIN #{table_name} AS t
         ON t.id = tree.parent_id
       WHERE NOT t.id = ANY(path)
-    ) SELECT id, name, parent_id FROM tree ORDER BY array_length(path, 1) DESC
+    ) SELECT id, name, short_name, parent_id FROM tree ORDER BY array_length(path, 1) DESC
     SQL
     find_by_sql([sql_query, id])
   end
