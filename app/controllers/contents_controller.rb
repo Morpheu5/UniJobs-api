@@ -27,7 +27,10 @@ class ContentsController < ApplicationController
             except: %i[organization_id],
             include: {
               organization: {
-                except: %i[parent_id created_at updated_at]
+                except: %i[parent_id created_at updated_at],
+                include: {
+                  ancestors: {}
+                }
               },
               content_blocks: {
                 except: [:content_id]

@@ -5,6 +5,10 @@ class Organization < ApplicationRecord
   has_many :organizations, inverse_of: :organization, foreign_key: 'parent_id'
   has_many :contents, inverse_of: :contents
 
+  def ancestors
+    Organization.find_ancestors(id: id)
+  end
+
   def self.find_by(name_parts:)
     prepared_name_parts = name_parts.map { |n| "%#{n}%" }
     sql_query = <<-SQL
