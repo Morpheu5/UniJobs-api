@@ -74,6 +74,6 @@ class ContentsController < ApplicationController
 
   # Only allow a trusted parameter "white list" through.
   def content_params
-    params.require(:data).permit(:content_type, title: {}, metadata: {})
+    params.require(:data).permit(:content_type, :organization_id, title: {}, metadata: {})
   end
 end
