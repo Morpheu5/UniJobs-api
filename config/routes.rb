@@ -12,4 +12,6 @@ Rails.application.routes.draw do
       get 'ancestors'
     end
   end
+
+  post 'login', to: 'users#login'
 end

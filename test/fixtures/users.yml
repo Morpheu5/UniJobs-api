@@ -3,13 +3,17 @@
 one:
   username: MyString
   email: MyString
-  first_name: MyString
-  middle_names: MyString
-  last_name: MyString
+  given_name: MyString
+  family_name: MyString
+  role: MyString
+  password: MyString
+  salt: MyString
 
 two:
   username: MyString
   email: MyString
-  first_name: MyString
-  middle_names: MyString
-  last_name: MyString
+  given_name: MyString
+  family_name: MyString
+  role: MyString
+  password: MyString
+  salt: MyString

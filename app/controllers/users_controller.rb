@@ -6,7 +6,6 @@ class UsersController < ApplicationController
   # GET /users
   def index
     @users = User.all
-    @users.username
 
     render json: @users
   end
@@ -41,6 +40,22 @@ class UsersController < ApplicationController
     @user.destroy
   end
 
+  def login
+    params.require([:email, :password])
+
+    @user = User.find_by(email: params[:email].downcase)
+    if @user.authenticate(params[:password])
+      # TODO Create a new token and return this to the user along with some extra info maybe.
+      render json: { message: 'All good! :)' }
+    else
+      render json: { message: 'THOU SHALL NOT PASS!' }
+    end
+  end
+
+  def logout
+    # TODO Destroy the token
+  end
+
   private
 
   # Use callbacks to share common setup or constraints between actions.
@@ -50,6 +65,6 @@ class UsersController < ApplicationController
 
   # Only allow a trusted parameter "white list" through.
   def user_params
-    params.require(:user).permit(:username, :email, :first_name, :middle_names, :last_name)
+    params.require(:user).permit(:email, :email_confirmation, :given_name, :family_name, :password, :password_confirmation)
   end
 end
