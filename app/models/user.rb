@@ -3,6 +3,8 @@
 class User < ApplicationRecord
   has_secure_password
 
+  has_many :authentication_tokens, dependent: :delete_all
+
   validates :email,
             presence: true,
             confirmation: true,

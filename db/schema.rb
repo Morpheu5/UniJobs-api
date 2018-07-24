@@ -10,12 +10,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_07_23_142543) do
+ActiveRecord::Schema.define(version: 2018_07_24_120322) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
   enable_extension "uuid-ossp"
+
+  create_table "authentication_tokens", force: :cascade do |t|
+    t.bigint "user_id"
+    t.string "token"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["token"], name: "index_authentication_tokens_on_token", unique: true
+    t.index ["user_id"], name: "index_authentication_tokens_on_user_id"
+  end
 
   create_table "content_blocks", force: :cascade do |t|
     t.bigint "content_id"
@@ -60,6 +69,7 @@ ActiveRecord::Schema.define(version: 2018_07_23_142543) do
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 
+  add_foreign_key "authentication_tokens", "users"
   add_foreign_key "content_blocks", "contents"
   add_foreign_key "contents", "organizations"
   add_foreign_key "organizations", "organizations", column: "parent_id"

@@ -2,23 +2,22 @@
 
 class UsersController < ApplicationController
   before_action :set_user, only: %i[show update destroy]
+  after_action :verify_authorized, except: %i[index show create login]
 
   # GET /users
   def index
     @users = User.all
-
     render json: @users
   end
 
   # GET /users/1
   def show
-    render json: @user
+    render json: @user, except: [ :password_digest ]
   end
 
   # POST /users
   def create
     @user = User.new(user_params)
-
     if @user.save
       render json: @user, status: :created, location: @user
     else
@@ -28,6 +27,7 @@ class UsersController < ApplicationController
 
   # PATCH/PUT /users/1
   def update
+    authorize @user
     if @user.update(user_params)
       render json: @user
     else
@@ -37,6 +37,8 @@ class UsersController < ApplicationController
 
   # DELETE /users/1
   def destroy
+    authorize @user
+    # TODO Maybe consider blanking out info and deactivating rather than deleting outright.
     @user.destroy
   end
 
@@ -45,18 +47,33 @@ class UsersController < ApplicationController
 
     @user = User.find_by(email: params[:email].downcase)
     if @user.authenticate(params[:password])
-      # TODO Create a new token and return this to the user along with some extra info maybe.
-      render json: { message: 'All good! :)' }
+      token = loop do
+        _token = SecureRandom.hex(16)
+        break _token unless AuthenticationToken.where(user: @user, token: _token).exists?
+      end
+      auth_token = AuthenticationToken.create user: @user, token: token
+      render json: { message: 'All good! :)', token: token }
     else
       render json: { message: 'THOU SHALL NOT PASS!' }
     end
   end
 
   def logout
-    # TODO Destroy the token
+    token = AuthenticationToken.find_by(token: request.headers['X-Auth-Token'])
+    if token.nil?
+      skip_authorization
+    else
+      authorize token.user
+      token.destroy
+    end
   end
 
   private
+
+  def current_user
+    token = AuthenticationToken.find_by(token: request.headers['X-Auth-Token'])
+    token.user unless token.nil?
+  end
 
   # Use callbacks to share common setup or constraints between actions.
   def set_user
