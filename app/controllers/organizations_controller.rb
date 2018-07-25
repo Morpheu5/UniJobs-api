@@ -23,7 +23,6 @@ class OrganizationsController < ApplicationController
 
   def make_tree(list)
     hash = list.map { |l| [l['id'], l.except("created_at", "updated_at")] }.to_h
-    puts hash
     keys = hash.keys
 
     keys.each do |k|

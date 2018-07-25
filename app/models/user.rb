@@ -4,6 +4,7 @@ class User < ApplicationRecord
   has_secure_password
 
   has_many :authentication_tokens, dependent: :delete_all
+  has_and_belongs_to_many :organizations
 
   validates :email,
             presence: true,

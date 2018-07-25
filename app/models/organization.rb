@@ -5,6 +5,8 @@ class Organization < ApplicationRecord
   has_many :organizations, inverse_of: :organization, foreign_key: 'parent_id'
   has_many :contents, inverse_of: :contents
 
+  has_and_belongs_to_many :users
+
   def ancestors
     Organization.find_ancestors(id: id)
   end

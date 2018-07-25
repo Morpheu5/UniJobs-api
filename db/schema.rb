@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_07_24_120322) do
+ActiveRecord::Schema.define(version: 2018_07_24_194333) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -56,6 +56,14 @@ ActiveRecord::Schema.define(version: 2018_07_24_120322) do
     t.string "short_name"
     t.index ["name"], name: "index_organizations_on_name"
     t.index ["parent_id"], name: "index_organizations_on_parent_id"
+  end
+
+  create_table "organizations_users", id: false, force: :cascade do |t|
+    t.bigint "organization_id"
+    t.bigint "user_id"
+    t.datetime "created_at", null: false
+    t.index ["organization_id"], name: "index_organizations_users_on_organization_id"
+    t.index ["user_id"], name: "index_organizations_users_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
