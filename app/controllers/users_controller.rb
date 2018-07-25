@@ -46,7 +46,7 @@ class UsersController < ApplicationController
     params.require([:email, :password])
 
     @user = User.find_by(email: params[:email].downcase)
-    if @user.authenticate(params[:password])
+    if @user&.authenticate(params[:password])
       token = loop do
         _token = SecureRandom.hex(16)
         break _token unless AuthenticationToken.where(user: @user, token: _token).exists?
@@ -54,7 +54,7 @@ class UsersController < ApplicationController
       auth_token = AuthenticationToken.create user: @user, token: token
       render json: { message: 'All good! :)', token: token }
     else
-      render json: { message: 'THOU SHALL NOT PASS!' }
+      render json: { message: 'THOU SHALL NOT PASS!' }, status: :forbidden
     end
   end
 
