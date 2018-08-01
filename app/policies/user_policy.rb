@@ -1,13 +1,16 @@
+# frozen_string_literal: true
+
 class UserPolicy < ApplicationPolicy
   def update?
-    !user.nil? and user == resource
+    !user.nil? && user == resource
   end
 
   def logout?
-    !user.nil? and user == resource
+    # resource is an AuthenticationToken
+    !user.nil? && user == resource.user
   end
 
   def destroy?
-    !user.nil? and (user == resource or user.role == 'ADMIN')
+    !user.nil? && (user == resource || user.role == 'ADMIN')
   end
 end

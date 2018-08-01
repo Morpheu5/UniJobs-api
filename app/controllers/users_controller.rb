@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class UsersController < ApplicationController
+  include Authenticatable
+
   before_action :set_user, only: %i[show update destroy]
   after_action :verify_authorized, except: %i[index show create login]
 
@@ -12,7 +14,7 @@ class UsersController < ApplicationController
 
   # GET /users/1
   def show
-    render json: @user, except: [ :password_digest ]
+    render json: @user, except: [:password_digest]
   end
 
   # POST /users
@@ -38,41 +40,41 @@ class UsersController < ApplicationController
   # DELETE /users/1
   def destroy
     authorize @user
-    # TODO Maybe consider blanking out info and deactivating rather than deleting outright.
-    @user.destroy
+    # TODO: Maybe consider blanking out info and deactivating rather than deleting outright.
+    # @user.destroy
   end
 
+  # POST /login
   def login
-    params.require([:email, :password])
+    params.require(%i[email password])
 
     @user = User.find_by(email: params[:email].downcase)
     if @user&.authenticate(params[:password])
-      token = loop do
-        _token = SecureRandom.hex(16)
-        break _token unless AuthenticationToken.where(user: @user, token: _token).exists?
-      end
-      auth_token = AuthenticationToken.create user: @user, token: token
-      render json: { message: 'All good! :)', token: token }
+      db_token = create_token_for_user @user
+      render json: { message: 'All good! :)', user_id: db_token.user_id, token: db_token.token }
     else
-      render json: { message: 'THOU SHALL NOT PASS!' }, status: :forbidden
+      head :forbidden, error: 'THOU SHALL NOT PASS!'
     end
   end
 
+  # POST /logout
   def logout
-    token = AuthenticationToken.find_by(token: request.headers['X-Auth-Token'])
-    if token.nil?
-      skip_authorization
-    else
-      authorize token.user
-      token.destroy
+    @user = current_user
+    skip_authorization if @user.nil?
+    authenticate_with_http_token do |token, _options|
+      db_token = verify_token(token)
+      authorize db_token, :destroy?
+      db_token.destroy
     end
   end
 
   private
 
-  def current_user
-    token = AuthenticationToken.find_by(token: request.headers['X-Auth-Token'])
-    token.user unless token.nil?
+  def create_token_for_user(user)
+    loop do
+      temp_token = SecureRandom.hex(64)
+      break AuthenticationToken.create(user: @user, token: temp_token) unless AuthenticationToken.where(user: user, token: temp_token).exists?
+    end
   end
 
   # Use callbacks to share common setup or constraints between actions.
