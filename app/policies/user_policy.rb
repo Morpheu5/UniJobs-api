@@ -2,15 +2,15 @@
 
 class UserPolicy < ApplicationPolicy
   def update?
-    !user.nil? && user == resource
+    user == resource
   end
 
   def logout?
     # resource is an AuthenticationToken
-    !user.nil? && user == resource.user
+    user == resource.user
   end
 
   def destroy?
-    !user.nil? && (user == resource || user.role == 'ADMIN')
+    user == resource || user&.role == 'ADMIN'
   end
 end

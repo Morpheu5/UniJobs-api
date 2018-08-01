@@ -2,7 +2,6 @@
 
 class AuthenticationTokenPolicy < ApplicationPolicy
   def destroy?
-    !user.nil? && user == resource.user
+    user == resource.user
   end
 end
-  

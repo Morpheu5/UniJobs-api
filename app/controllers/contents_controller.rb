@@ -7,7 +7,7 @@ class ContentsController < ApplicationController
   # GET /contents
   def index
     @contents = Content.where(content_type: params[:content_type]) if params[:content_type]
-    @contents = if (request.headers['X-Auth-Token'] && current_user)
+    @contents = if request.headers['X-Auth-Token'] && current_user
                   policy_scope(@contents)
                 else
                   @contents.where('metadata @> ?', { published: true }.to_json)
@@ -20,7 +20,7 @@ class ContentsController < ApplicationController
   def show
     @content = Content.includes(%i[content_blocks organization])
     @content = @content.where(content_type: params[:content_type]) if params[:content_type]
-    @content = if (request.headers['X-Auth-Token'] && current_user)
+    @content = if request.headers['X-Auth-Token'] && current_user
                  policy_scope(@content)
                else
                  @content.where('metadata @> ?', { published: true }.to_json)

@@ -12,8 +12,8 @@ class User < ApplicationRecord
             uniqueness: true,
             allow_blank: false
 
-#   validates :email_confirmation,
-#             presence: true,
-#             allow_nil: false,
-#             allow_blank: false
+  #   validates :email_confirmation,
+  #             presence: true,
+  #             allow_nil: false,
+  #             allow_blank: false
 end
