@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class ContentBlocksController < ApplicationController
+  include Authenticatable
+  
   before_action :set_content_block, only: %i[show update destroy]
   after_action :verify_authorized, except: %i[index show]
 
@@ -58,11 +60,6 @@ class ContentBlocksController < ApplicationController
   end
 
   private
-
-  def current_user
-    token = AuthenticationToken.find_by(token: request.headers['X-Auth-Token'])
-    token&.user
-  end
 
   def set_content_block
     @content_block = ContentBlock.where(content_id: params[:content_id]).find(params[:id])

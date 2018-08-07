@@ -1,13 +1,15 @@
 # frozen_string_literal: true
 
 class ContentsController < ApplicationController
+  include Authenticatable
+  
   before_action :set_content, only: %i[destroy]
   after_action :verify_authorized, except: %i[index show]
 
   # GET /contents
   def index
     @contents = Content.where(content_type: params[:content_type]) if params[:content_type]
-    @contents = if request.headers['X-Auth-Token'] && current_user
+    @contents = if request.headers['Authorization'] && current_user
                   policy_scope(@contents)
                 else
                   @contents.where('metadata @> ?', { published: true }.to_json)
@@ -20,7 +22,7 @@ class ContentsController < ApplicationController
   def show
     @content = Content.includes(%i[content_blocks organization])
     @content = @content.where(content_type: params[:content_type]) if params[:content_type]
-    @content = if request.headers['X-Auth-Token'] && current_user
+    @content = if request.headers['Authorization'] && current_user
                  policy_scope(@content)
                else
                  @content.where('metadata @> ?', { published: true }.to_json)
@@ -77,11 +79,6 @@ class ContentsController < ApplicationController
   end
 
   private
-
-  def current_user
-    token = AuthenticationToken.find_by(token: request.headers['X-Auth-Token'])
-    token&.user
-  end
 
   # Use callbacks to share common setup or constraints between actions.
   def set_content

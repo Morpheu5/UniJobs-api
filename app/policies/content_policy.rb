@@ -6,15 +6,15 @@ class ContentPolicy < ApplicationPolicy
   end
 
   def create?
-    !user.nil? && user.role == 'ADMIN' || user.organizations.include?(resource.organization)
+    !user.nil? && (user.role == 'ADMIN' || user.organizations.include?(resource.organization))
   end
 
   def update?
-    !user.nil? && user.role == 'ADMIN' || user.organizations.include?(resource.organization)
+    !user.nil? && (user.role == 'ADMIN' || user.organizations.include?(resource.organization))
   end
 
   def destroy?
-    !user.nil? && user.role == 'ADMIN' || user.organizations.include?(resource.organization)
+    !user.nil? && (user.role == 'ADMIN' || user.organizations.include?(resource.organization))
   end
 
   class Scope
