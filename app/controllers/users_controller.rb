@@ -44,6 +44,16 @@ class UsersController < ApplicationController
     # @user.destroy
   end
 
+  def whoami
+    @user = current_user
+    if @user.nil?
+      skip_authorization
+    else
+      authorize @user
+      render json: @user, except: [:password_digest]
+    end
+  end
+
   # POST /login
   def login
     params.require(%i[email password])
@@ -51,7 +61,9 @@ class UsersController < ApplicationController
     @user = User.find_by(email: params[:email].downcase)
     if @user&.authenticate(params[:password])
       db_token = create_token_for_user @user
-      render json: { message: 'All good! :)', user_id: db_token.user_id, token: db_token.token }
+      payload = { sub: @user.id, iat: Time.now().to_i }
+      jwt_token = JWT.encode(payload, db_token.token, 'HS512')
+      render json: { message: 'All good! :)', user_id: db_token.user_id, token: jwt_token }
     else
       head :forbidden, error: 'THOU SHALL NOT PASS!'
     end

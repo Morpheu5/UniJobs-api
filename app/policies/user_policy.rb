@@ -13,4 +13,8 @@ class UserPolicy < ApplicationPolicy
   def destroy?
     user == resource || user&.role == 'ADMIN'
   end
+
+  def whoami?
+    user == resource
+  end
 end
