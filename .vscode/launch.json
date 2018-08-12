@@ -18,8 +18,11 @@
             "name": "Rails server DEBUG",
             "type": "Ruby",
             "request": "launch",
+            "showDebuggerOutput": true,
+            "useBundler": true,
+            "pathToBundler": "/Users/morpheu5/.rvm/gems/ruby-2.5.1/bin/bundle",
             "cwd": "${workspaceRoot}",
-            "program": "rdebug-ide -- ${workspaceRoot}/bin/rails",
+            "program": "rdebug-ide",
             "args": [
                 "server"
             ]
