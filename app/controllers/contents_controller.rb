@@ -8,7 +8,8 @@ class ContentsController < ApplicationController
 
   # GET /contents
   def index
-    @contents = Content.where(content_type: params[:content_type]) if params[:content_type]
+    @contents = Content.includes(%i[organization])
+    @contents = @contents.where(content_type: params[:content_type]) if params[:content_type]
     @contents = if request.headers['Authorization'] && current_user
                   policy_scope(@contents)
                 else
