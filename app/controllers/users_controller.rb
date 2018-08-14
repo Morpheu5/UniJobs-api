@@ -9,17 +9,18 @@ class UsersController < ApplicationController
   # GET /users
   def index
     @users = User.all
-    render json: @users, except: [:password_digest]
+    render json: @users, except: %i[password_digest verification_token]
   end
 
   # GET /users/1
   def show
-    render json: @user, except: [:password_digest]
+    render json: @user, except: %i[password_digest verification_token]
   end
 
   # POST /users
   def create
     @user = User.new(user_params)
+    @user.verification_token = SecureRandom::urlsafe_base64(8)
     if @user.save
       render json: @user, status: :created, location: @user
     else
@@ -96,6 +97,6 @@ class UsersController < ApplicationController
 
   # Only allow a trusted parameter "white list" through.
   def user_params
-    params.require(:user).permit(:email, :email_confirmation, :given_name, :family_name, :password, :password_confirmation)
+    params.require(:user).permit(:email, :given_name, :family_name, :password)
   end
 end

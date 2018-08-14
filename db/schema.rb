@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_07_24_194333) do
+ActiveRecord::Schema.define(version: 2018_08_14_112006) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -74,6 +74,8 @@ ActiveRecord::Schema.define(version: 2018_07_24_194333) do
     t.string "password_digest"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "verification_token"
+    t.boolean "email_verified", default: false
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 
