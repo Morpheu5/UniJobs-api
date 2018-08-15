@@ -1,20 +1,20 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
-  # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
-  get 'users/whoami', to: 'users#whoami'
 
   resources :users
+  get 'users/whoami', to: 'users#whoami'
+  post 'login', to: 'users#login'
+  post 'logout', to: 'users#logout'
+
   resources :contents do
     resources :content_blocks
   end
+  get 'contents/slug/:slug', to: 'contents#find_by_slug'
+
   resources :organizations do
     member do
       get 'ancestors'
     end
   end
-
-  post 'login', to: 'users#login'
-  post 'logout', to: 'users#logout'
-  
 end

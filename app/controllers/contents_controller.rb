@@ -4,7 +4,7 @@ class ContentsController < ApplicationController
   include Authenticatable
   
   before_action :set_content, only: %i[destroy]
-  after_action :verify_authorized, except: %i[index show]
+  after_action :verify_authorized, except: %i[index show find_by_slug]
 
   # GET /contents
   def index
@@ -39,9 +39,34 @@ class ContentsController < ApplicationController
                 }
               },
               content_blocks: {
-                except: [:content_id]
+                except: %i[content_id]
               }
             }
+  end
+
+  # GET /contents/slug/:slug
+  def find_by_slug
+    @content = Content.includes(%i[content_blocks organization])
+                      .where(content_type: 'page')
+                      .where('metadata @> ?', { published: true, slug: params[:slug] }.to_json)
+
+    if @content.empty?
+      raise ActiveRecord::RecordNotFound.new("Couldn't find Content with slug='#{params[:slug]}'", 'Content')
+    else
+      render json: @content[0],
+            except: %i[organization_id],
+            include: {
+              organization: {
+                except: %i[parent_id created_at updated_at],
+                include: {
+                  ancestors: {}
+                }
+              },
+              content_blocks: {
+                except: %i[content_id]
+              }
+            }
+    end
   end
 
   # POST /contents
