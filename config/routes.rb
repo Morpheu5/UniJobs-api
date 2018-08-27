@@ -2,8 +2,8 @@
 
 Rails.application.routes.draw do
 
-  resources :users
   get 'users/whoami', to: 'users#whoami'
+  resources :users
   post 'login', to: 'users#login'
   post 'logout', to: 'users#logout'
 
