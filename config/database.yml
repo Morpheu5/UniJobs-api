@@ -82,4 +82,5 @@ production:
   <<: *default
   database: api_production
   username: api
+  url: <%= ENV['API_DATABASE_URL'] %>
   password: <%= ENV['API_DATABASE_PASSWORD'] %>

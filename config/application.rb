@@ -35,5 +35,7 @@ module Api
     config.api_only = true
 
     config.action_dispatch.rescue_responses["Pundit::NotAuthorizedError"] = :forbidden
+
+    config.site_baseurl = Rails.env.production? ? 'https://' + ENV['SITE_BASEURL'] : 'http://localhost:8080'
   end
 end

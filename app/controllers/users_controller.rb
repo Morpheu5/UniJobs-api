@@ -4,7 +4,7 @@ class UsersController < ApplicationController
   include Authenticatable
 
   before_action :set_user, only: %i[show update destroy]
-  after_action :verify_authorized, except: %i[index show create login]
+  after_action :verify_authorized, except: %i[index show create login verify_email]
 
   # GET /users
   def index
@@ -22,6 +22,8 @@ class UsersController < ApplicationController
     @user = User.new(user_params)
     @user.verification_token = SecureRandom::urlsafe_base64(8)
     if @user.save
+      # TODO Add locale info
+      UserMailer.with(user: @user).verify_email.deliver_now
       render json: @user, status: :created, location: @user
     else
       render json: @user.errors, status: :unprocessable_entity
@@ -52,6 +54,20 @@ class UsersController < ApplicationController
     else
       authorize @user
       render json: @user, except: [:password_digest]
+    end
+  end
+
+  def verify_email
+    params.require(%i[token])
+
+    @user = User.find_by(verification_token: params[:token])
+    if @user.nil?
+      head :unauthorized
+    else
+      @user.verification_token = nil
+      @user.email_verified = true
+      @user.save
+      head :no_content
     end
   end
 

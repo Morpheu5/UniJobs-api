@@ -3,6 +3,7 @@
 Rails.application.routes.draw do
 
   get 'users/whoami', to: 'users#whoami'
+  post 'users/verify_email', to: 'users#verify_email'
   resources :users
   post 'login', to: 'users#login'
   post 'logout', to: 'users#logout'
