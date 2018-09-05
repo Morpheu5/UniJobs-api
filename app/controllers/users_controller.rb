@@ -33,8 +33,19 @@ class UsersController < ApplicationController
   # PATCH/PUT /users/1
   def update
     authorize @user
-    if @user.update(user_params)
-      render json: @user
+    if user_params[:old_password]
+      # Re-check that the user has entered the right current password
+      if @user&.authenticate(user_params[:old_password])
+        if @user.update(password: user_params[:password])
+          render json: @user, except: [:password_digest]
+        else
+          render json: @user.errors, status: :unprocessable_entity
+        end
+      else
+        head :unauthorized
+      end
+    elsif @user.update(user_params)
+      render json: @user, except: [:password_digest]
     else
       render json: @user.errors, status: :unprocessable_entity
     end
@@ -58,9 +69,9 @@ class UsersController < ApplicationController
   end
 
   def verify_email
-    params.require(%i[token])
+    email_params = params.require(%i[token])
 
-    @user = User.find_by(verification_token: params[:token])
+    @user = User.find_by(verification_token: email_params[:token])
     if @user.nil?
       head :unauthorized
     else
@@ -113,6 +124,6 @@ class UsersController < ApplicationController
 
   # Only allow a trusted parameter "white list" through.
   def user_params
-    params.require(:user).permit(:email, :given_name, :family_name, :password)
+    params.require(:user).permit(:email, :given_name, :family_name, :password, :old_password)
   end
 end
