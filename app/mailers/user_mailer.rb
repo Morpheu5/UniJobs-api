@@ -1,22 +1,13 @@
-# frozen_string_literal: true
-
 class UserMailer < ApplicationMailer
-    
-    def verify_email
-        body = """
-        Welcome to UniJobs.it!
 
-        Please go to the following URL to verify your e-mail address and fully activate your account.
-
-        #{Rails.configuration.site_baseurl}/verify_email?token=#{params[:user].verification_token}
-
-        Thanks for signing up!
-
-        Your friends at UniJobs.it
-        """
-        mail(to: params[:user].email,
-            body: body,
-            content_type: "text/plain",
-            subject: "UniJobs.it -- Please verify your e-mail address")
+  # Subject can be set in your I18n file at config/locales/en.yml
+  # with the following lookup:
+  #
+  #   en.user_mailer.verify_email.subject
+  #
+  def verify_email
+    @user = params[:user]
+    @verification_url = `#{Rails.configuration.site_baseurl}/verify_email?token=#{params[:user].verification_token}`
+    mail(to: @user.email)
     end
-  end
+end

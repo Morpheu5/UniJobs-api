@@ -1,0 +1,4 @@
+it:
+  user_mailer:
+    verify_email:
+      subject: "[UniJobs.it] Verifica la tua e-mail"
