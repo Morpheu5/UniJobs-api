@@ -14,7 +14,7 @@ class UsersController < ApplicationController
 
   # GET /users/1
   def show
-    render json: @user, except: %i[password_digest verification_token]
+    render json: @user, except: %i[password_digest verification_token], include: [:organizations]
   end
 
   # POST /users
