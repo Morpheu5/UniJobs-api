@@ -8,7 +8,7 @@ class ContentsController < ApplicationController
 
   # GET /contents
   def index
-    @contents = Content.includes(%i[organization])
+    @contents = Content
     @contents = @contents.where(content_type: params[:content_type]) if params[:content_type]
     @contents = if request.headers['Authorization'] && current_user
                   policy_scope(@contents)
@@ -16,7 +16,14 @@ class ContentsController < ApplicationController
                   @contents.where('metadata @> ?', { published: true }.to_json)
                 end
 
-    render json: @contents
+    render json: @contents,
+           except: %i[organization_id updated_at],
+           include: {
+             organization: {
+               except: %i[parent_id created_at updated_at],
+               include: { ancestors: {} }
+             }
+           }
   end
 
   # GET /contents/1
@@ -30,13 +37,11 @@ class ContentsController < ApplicationController
                end
 
     render  json: @content.find(params[:id]),
-            except: %i[organization_id],
+            except: %i[organization_id updated_at],
             include: {
               organization: {
                 except: %i[parent_id created_at updated_at],
-                include: {
-                  ancestors: {}
-                }
+                include: { ancestors: {} }
               },
               content_blocks: {
                 except: %i[content_id]
