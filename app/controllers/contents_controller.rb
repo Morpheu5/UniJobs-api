@@ -59,28 +59,41 @@ class ContentsController < ApplicationController
       raise ActiveRecord::RecordNotFound.new("Couldn't find Content with slug='#{params[:slug]}'", 'Content')
     else
       render json: @content[0],
-            except: %i[organization_id],
-            include: {
-              organization: {
-                except: %i[parent_id created_at updated_at],
-                include: {
-                  ancestors: {}
-                }
-              },
-              content_blocks: {
-                except: %i[content_id]
-              }
-            }
+             except: %i[organization_id],
+             include: {
+               organization: {
+                 except: %i[parent_id created_at updated_at],
+                 include: {
+                   ancestors: {}
+                 }
+               },
+               content_blocks: {
+                 except: %i[content_id]
+               }
+             }
     end
   end
 
   # POST /contents
   def create
     @content = Content.new(content_params)
-    authorize @content
+    # authorize @content
+    skip_authorization
 
     if @content.save
-      render json: @content, status: :created, location: content_path(@content)
+      render  json: @content,
+              except: %i[organization_id updated_at],
+              include: {
+                organization: {
+                  except: %i[parent_id created_at updated_at],
+                  include: { ancestors: {} }
+                },
+                content_blocks: {
+                  except: %i[content_id]
+                }
+              },
+              status: :created,
+              location: content_path(@content)
     else
       render json: @content.errors, status: :unprocessable_entity
     end
@@ -118,6 +131,6 @@ class ContentsController < ApplicationController
 
   # Only allow a trusted parameter "white list" through.
   def content_params
-    params.require(:data).permit(:content_type, :organization_id, title: {}, metadata: {})
+    params.require(:data).permit(:uuid, :content_type, :organization_id, title: {}, metadata: {}, content_blocks_attributes: [:id, :uuid, :block_type, :order, body: {}])
   end
 end
