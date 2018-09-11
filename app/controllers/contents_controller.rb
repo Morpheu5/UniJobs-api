@@ -17,7 +17,7 @@ class ContentsController < ApplicationController
                 end
 
     render json: @contents,
-           except: %i[organization_id updated_at],
+           except: %i[organization_id],
            include: {
              organization: {
                except: %i[parent_id created_at updated_at],
