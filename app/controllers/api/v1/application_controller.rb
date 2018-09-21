@@ -7,14 +7,14 @@ module Api
       include Pundit
 
       before_action :set_locale
-    
+
       rescue_from ::V1::Authenticatable::UnauthorizedException do |exception|
         head :unauthorized, 'WWW-Authenticate' => 'Bearer', 'X-Error' => exception.message || ''
       end
 
       def set_locale
         I18n.locale = params[:locale] || I18n.default_locale
-      end  
+      end
     end
   end
 end

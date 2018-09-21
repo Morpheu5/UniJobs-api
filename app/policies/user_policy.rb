@@ -4,7 +4,7 @@ class UserPolicy < ApplicationPolicy
   def index?
     user&.role == 'ADMIN'
   end
-  
+
   def update?
     user == resource
   end

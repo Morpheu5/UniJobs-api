@@ -23,24 +23,24 @@ module Api
 
       # GET /users/1
       def show
-        render json: @user,
-              except: %i[password_digest verification_token],
-              include: {
-                organizations: {
-                  except: %i[parent_id created_at updated_at],
-                  include: {
-                    ancestors: {}
+        render  json: @user,
+                except: %i[password_digest verification_token],
+                include: {
+                  organizations: {
+                    except: %i[parent_id created_at updated_at],
+                    include: {
+                      ancestors: {}
+                    }
                   }
                 }
-              }
       end
 
       # POST /users
       def create
         @user = User.new(user_params)
-        @user.verification_token = SecureRandom::urlsafe_base64(8)
+        @user.verification_token = SecureRandom.urlsafe_base64(8)
         if @user.save
-          # TODO Add locale info
+          # TODO: Add locale info
           UserMailer.with(user: @user).verify_email.deliver_now
           render json: @user, status: :created, location: @user
         else
@@ -107,7 +107,7 @@ module Api
         @user = User.find_by(email: params[:email].downcase)
         if @user&.authenticate(params[:password])
           db_token = create_token_for_user @user
-          payload = { sub: @user.id, iat: Time.now().to_i }
+          payload = { sub: @user.id, iat: Time.now.to_i }
           jwt_token = JWT.encode(payload, db_token.token, 'HS512')
           render json: { message: 'All good! :)', user_id: db_token.user_id, token: jwt_token }
         else

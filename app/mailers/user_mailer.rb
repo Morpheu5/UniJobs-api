@@ -1,5 +1,6 @@
-class UserMailer < ApplicationMailer
+# frozen_string_literal: true
 
+class UserMailer < ApplicationMailer
   # Subject can be set in your I18n file at config/locales/en.yml
   # with the following lookup:
   #
@@ -9,5 +10,5 @@ class UserMailer < ApplicationMailer
     @user = params[:user]
     @verification_url = `#{Rails.configuration.site_baseurl}/verify_email?token=#{params[:user].verification_token}`
     mail(to: @user.email)
-    end
+  end
 end

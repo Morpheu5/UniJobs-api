@@ -4,7 +4,7 @@ module Api
   module V1
     class ContentsController < ApplicationController
       include ::V1::Authenticatable
-      
+
       before_action :set_content, only: %i[destroy]
       after_action :verify_authorized, except: %i[index show find_by_slug]
 
@@ -18,14 +18,14 @@ module Api
                       @contents.where('metadata @> ?', { published: true }.to_json)
                     end
 
-        render json: @contents,
-              except: %i[organization_id],
-              include: {
-                organization: {
-                  except: %i[parent_id created_at updated_at],
-                  include: { ancestors: {} }
+        render  json: @contents,
+                except: %i[organization_id],
+                include: {
+                  organization: {
+                    except: %i[parent_id created_at updated_at],
+                    include: { ancestors: {} }
+                  }
                 }
-              }
       end
 
       # GET /contents/1
@@ -33,10 +33,10 @@ module Api
         @content = Content.includes(%i[content_blocks organization])
         @content = @content.where(content_type: params[:content_type]) if params[:content_type]
         @content = if request.headers['Authorization'] && current_user
-                    policy_scope(@content)
-                  else
-                    @content.where('metadata @> ?', { published: true }.to_json)
-                  end
+                     policy_scope(@content)
+                   else
+                     @content.where('metadata @> ?', { published: true }.to_json)
+                   end
 
         render  json: @content.find(params[:id]),
                 except: %i[organization_id updated_at],
@@ -57,10 +57,9 @@ module Api
                           .where(content_type: 'page')
                           .where('metadata @> ?', { published: true, slug: params[:slug] }.to_json)
 
-        if @content.empty?
-          raise ActiveRecord::RecordNotFound.new("Couldn't find Content with slug='#{params[:slug]}'", 'Content')
-        else
-          render json: @content[0],
+        raise ActiveRecord::RecordNotFound.new("Couldn't find Content with slug='#{params[:slug]}'", 'Content') if @content.empty?
+
+        render  json: @content[0],
                 except: %i[organization_id],
                 include: {
                   organization: {
@@ -73,7 +72,6 @@ module Api
                     except: %i[content_id]
                   }
                 }
-        end
       end
 
       # POST /contents

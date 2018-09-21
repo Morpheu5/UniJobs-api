@@ -4,26 +4,9 @@ module Api
   module V1
     class ContentBlocksController < ApplicationController
       include ::V1::Authenticatable
-      
+
       before_action :set_content_block, only: %i[show update destroy]
       after_action :verify_authorized, except: %i[index show]
-
-      # # GET /contents/1/content_blocks
-      # # Probably not necessary
-      # def index
-      #   @content_blocks = ContentBlock.where(content_id: params[:content_id])
-      #   if request.headers['X-Auth-Token'] && current_user
-      #     @content_blocks.map { |b| authorize b }
-      #   else
-
-      #   end
-      #   render json: @content_blocks
-      # end
-
-      # # GET /contents/1/content_blocks/1
-      # def show
-      #   render json: @content_block
-      # end
 
       # POST /contents/1/content_blocks
       def create
@@ -71,6 +54,5 @@ module Api
         params.require(:data).permit(:block_type, :order, body: {})
       end
     end
-
   end
 end
