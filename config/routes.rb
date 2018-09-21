@@ -1,21 +1,28 @@
 # frozen_string_literal: true
 
+require 'api_constraints'
+
 Rails.application.routes.draw do
 
-  get 'users/whoami', to: 'users#whoami'
-  post 'users/verify_email', to: 'users#verify_email'
-  resources :users
-  post 'login', to: 'users#login'
-  post 'logout', to: 'users#logout'
+  namespace :api do
+    scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
+      get 'users/whoami', to: 'users#whoami'
+      post 'users/verify_email', to: 'users#verify_email'
+      resources :users
+      post 'login', to: 'users#login'
+      post 'logout', to: 'users#logout'
 
-  resources :contents do
-    resources :content_blocks
-  end
-  get 'contents/slug/:slug', to: 'contents#find_by_slug'
+      resources :contents do
+        resources :content_blocks
+      end
+      get 'contents/slug/:slug', to: 'contents#find_by_slug'
 
-  resources :organizations do
-    member do
-      get 'ancestors'
+      resources :organizations do
+        member do
+          get 'ancestors'
+        end
+      end
     end
   end
+
 end
