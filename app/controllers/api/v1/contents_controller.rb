@@ -92,8 +92,7 @@ module Api
                       except: %i[content_id]
                     }
                   },
-                  status: :created,
-                  location: content_path(@content)
+                  status: :created
         else
           render json: @content.errors, status: :unprocessable_entity
         end
