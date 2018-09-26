@@ -42,7 +42,7 @@ module Api
         if @user.save
           # TODO: Add locale info
           UserMailer.with(user: @user).verify_email.deliver_now
-          render json: @user, status: :created, location: @user
+          render json: @user, status: :created
         else
           render json: @user.errors, status: :unprocessable_entity
         end
