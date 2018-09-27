@@ -8,7 +8,7 @@ class UserMailer < ApplicationMailer
   #
   def verify_email
     @user = params[:user]
-    @verification_url = `#{Rails.configuration.site_baseurl}/verify_email?token=#{params[:user].verification_token}`
+    @verification_url = "#{Rails.configuration.site_baseurl}/verify_email?token=#{params[:user].verification_token}"
     mail(to: @user.email)
   end
 end

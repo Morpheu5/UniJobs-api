@@ -87,9 +87,9 @@ module Api
       end
 
       def verify_email
-        email_params = params.require(%i[token])
+        token = params.require(%i[token])
 
-        @user = User.find_by(verification_token: email_params[:token])
+        @user = User.find_by(verification_token: token)
         if @user.nil?
           head :unauthorized
         else
