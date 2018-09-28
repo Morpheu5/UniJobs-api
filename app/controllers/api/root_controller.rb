@@ -4,7 +4,8 @@ module Api
   class RootController < V1::ApplicationController
     def index
       render json: {
-        version: ENV['API_VERSION'] || Rails.env
+        api_version: Rails.configuration.api_version,
+        api_environment: Rails.env
       }
     end
   end
