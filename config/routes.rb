@@ -5,6 +5,8 @@ require 'api_constraints'
 Rails.application.routes.draw do
 
   namespace :api do
+    root 'root#index'
+
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
       get 'users/whoami', to: 'users#whoami'
       post 'users/verify_email', to: 'users#verify_email'
