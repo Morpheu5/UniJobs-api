@@ -14,6 +14,8 @@ Rails.application.routes.draw do
       post 'login', to: 'users#login'
       post 'logout', to: 'users#logout'
 
+      post 'job_reporting', to: 'application#job_reporting'
+
       resources :contents do
         resources :content_blocks
       end
