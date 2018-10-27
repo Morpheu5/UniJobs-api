@@ -18,7 +18,7 @@ module Api
 
       def job_reporting
         job_report = params.require(:data).permit(:url)
-        r = /^https?:\/\/.+$/
+        r = /^https?:\/\/.+$/i
         if r.match(job_report[:url]).nil?
           render json: { error: 'Not a valid HTTP URL.' }, status: :bad_request
           return
