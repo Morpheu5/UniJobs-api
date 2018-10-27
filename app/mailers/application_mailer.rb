@@ -9,7 +9,7 @@ class ApplicationMailer < ActionMailer::Base
     mail  to: 'info@unijobs.it',
           subject: 'UniJobs :: Job Reporter',
           body: """
-            A user reported a job with the following URL.
+            A user reported a job here:
             
             #{@job_url}
             
