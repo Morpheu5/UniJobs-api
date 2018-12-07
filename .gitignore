@@ -23,6 +23,8 @@
 
 /bin/*
 
+/spec/examples.txt
+
 # Editor directories and files
 .idea
 .vscode

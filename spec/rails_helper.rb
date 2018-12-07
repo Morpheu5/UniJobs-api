@@ -11,6 +11,7 @@ require 'support/shoulda'
 require 'support/database_cleaner'
 require 'faker'
 require 'support/factory_bot'
+require 'support/request_helpers'
 
 # Checks for pending migrations and applies them before tests are run.
 # If you are not using ActiveRecord, you can remove these lines.

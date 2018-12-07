@@ -12,6 +12,10 @@ module Api
         head :unauthorized, 'WWW-Authenticate' => 'Bearer', 'X-Error' => exception.message || ''
       end
 
+      rescue_from Pundit::NotAuthorizedError do |exception|
+        head :forbidden, 'WWW-Authenticate' => 'Bearer', 'X-Error' => exception.message || ''
+      end
+
       def set_locale
         I18n.locale = params[:locale] || I18n.default_locale
       end
