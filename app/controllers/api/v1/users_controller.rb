@@ -42,7 +42,9 @@ module Api
         if @user.save
           # TODO: Add locale info
           UserMailer.with(user: @user).verify_email.deliver_now
-          render json: @user, status: :created
+          render  json: @user,
+                  except: %i[password_digest verification_token],
+                  status: :created
         else
           render json: @user.errors, status: :unprocessable_entity
         end
