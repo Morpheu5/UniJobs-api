@@ -16,6 +16,7 @@ module Api
           head :unauthorized
         else
           authorize @user
+          ## TODO: Add pagination
           @users = User.all
           render json: @users, except: %i[password_digest verification_token]
         end
@@ -37,6 +38,9 @@ module Api
 
       # POST /users
       def create
+        ## TODO: Maybe admins could create users...
+        return head :forbidden unless current_user.nil?
+
         @user = User.new(user_params)
         @user.verification_token = SecureRandom.urlsafe_base64(8)
         if @user.save
@@ -54,18 +58,19 @@ module Api
       def update
         authorize @user
         if user_params[:old_password]
+          return head :forbidden unless @user == current_user
           # Re-check that the user has entered the right current password
           if @user&.authenticate(user_params[:old_password])
             if @user.update(password: user_params[:password])
-              render json: @user, except: [:password_digest]
+              render json: @user, except: %i[password_digest verification_token]
             else
               render json: @user.errors, status: :unprocessable_entity
             end
           else
-            head :unauthorized
+            head :forbidden
           end
         elsif @user.update(user_params)
-          render json: @user, except: [:password_digest]
+          render json: @user, except: %i[password_digest verification_token]
         else
           render json: @user.errors, status: :unprocessable_entity
         end
@@ -84,7 +89,7 @@ module Api
           skip_authorization
         else
           authorize @user
-          render json: @user, except: [:password_digest]
+          render json: @user, except: %i[password_digest]
         end
       end
 

@@ -6,7 +6,7 @@ class UserPolicy < ApplicationPolicy
   end
 
   def update?
-    user == resource
+    user == resource || user&.role == 'ADMIN'
   end
 
   def logout?
