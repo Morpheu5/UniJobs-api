@@ -1,9 +1,9 @@
 require 'rails_helper'
 
 RSpec.context 'When logged out' do
-  before(:all) do
-    @some_users = create_list(:user, 10)
-    @some_admins = create_list(:admin, 10)
+  before(:each) do
+    @some_users = create_list(:user, 5)
+    @some_admins = create_list(:admin, 2)
   end
 
   describe 'access to all users' do
@@ -14,18 +14,15 @@ RSpec.context 'When logged out' do
   end
 
   describe 'access to one user' do
-    before(:each) do
-      @random_id = Random.rand(19)+1
-    end
-
     it 'is successful' do
-      get "/api/users/#{@random_id}"
+      get "/api/users/#{[*@some_users, *@some_admins].sample.id}"
       expect(response).to have_http_status(:ok)
     end
 
     it 'retrieves the correct user' do
-      get "/api/users/#{@random_id}"
-      expect(json['id']).to equal(@random_id)
+      user = [*@some_users, *@some_admins].sample
+      get "/api/users/#{user.id}"
+      expect(json['id']).to equal(user.id)
     end
   end
 
