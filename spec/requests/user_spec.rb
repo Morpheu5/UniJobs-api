@@ -193,7 +193,7 @@ RSpec.context 'When logged in' do
       end
 
       it 'fails to update own role' do
-        put "/api/users/#{@user.id}", params: { user: { role: 'TEST_ADMIN' } }, headers: { **@auth_headers }
+        put "/api/users/#{@user.id}", params: { user: { role: 'ADMIN' } }, headers: { **@auth_headers }
         expect(User.find(@user.id).role).to eq('USER')
       end
     end
@@ -222,7 +222,7 @@ RSpec.context 'When logged in' do
       end
 
       it 'fails to update role' do
-        put "/api/users/#{@other_user.id}", params: { user: { role: 'TEST_ADMIN' } }, headers: { **@auth_headers }
+        put "/api/users/#{@other_user.id}", params: { user: { role: 'ADMIN' } }, headers: { **@auth_headers }
         expect(User.find(@other_user.id).role).to eq('USER')
       end
     end
@@ -342,8 +342,8 @@ RSpec.context 'When logged in' do
       end
 
       it 'can update role' do
-        put "/api/users/#{@other_user.id}", params: { user: { role: 'TEST_ADMIN' } }, headers: { **@auth_headers }
-        expect(User.find(@other_user.id).role).to eq('TEST_ADMIN')
+        put "/api/users/#{@other_user.id}", params: { user: { role: 'ADMIN' } }, headers: { **@auth_headers }
+        expect(User.find(@other_user.id).role).to eq('ADMIN')
       end
     end
   end

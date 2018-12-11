@@ -8,15 +8,26 @@ module Api
       before_action :set_user, only: %i[show update destroy]
       after_action :verify_authorized, except: %i[index show create login verify_email]
 
-      def_param_group :user do
-        property :email, String, required: true
-        property :given_name, String
-        property :family_name, String
-        property :role, String, required: true
-        property :gender, ['male', 'female', 'other', 'unspecified']
-        property :email_verified, [true, false], required: true
-        property :created_at, String, required: true
-        property :updated_at, String, required: true
+      def_param_group :user_creation_params do
+        param :user, Hash do
+          param :email, String, required: true
+          param :password, String, required: true
+          param :given_name, String
+          param :family_name, String
+          param :gender, ['male', 'female', 'other', 'unspecified'], allow_nil: true
+        end
+      end
+
+      def_param_group :user_update_params do
+        param :user, Hash do
+          param :email, String
+          param :old_password, String
+          param :password, String, 'Only required if old_password is present'
+          param :given_name, String
+          param :family_name, String
+          param :gender, ['male', 'female', 'other', 'unspecified'], allow_nil: true
+          param :role, ['USER', 'ADMIN']
+        end
       end
 
       def_param_group :user_response do
@@ -24,16 +35,16 @@ module Api
         property :email, String, required: true
         property :given_name, String, required: false
         property :family_name, String, required: false
-        property :role, String, required: true
-        property :gender, ['male', 'female', 'other', 'unspecified']
+        property :role, ['USER', 'ADMIN'], required: true
+        property :gender, ['male', 'female', 'other', 'unspecified'], allow_nil: true
         property :email_verified, [true, false], required: true
         property :created_at, String, required: true
         property :updated_at, String, required: true
       end
 
       api :GET, '/users', 'List users'
-      error code: 401, desc: 'Unauthorized'
-      error code: 403, desc: 'Forbidden'
+      error :unauthorized, 'On anonymous requests'
+      error :forbidden, 'The requesting user is not an admin'
       returns :array_of => :user_response, code: 200, desc: 'All the users'
       def index
         @user = current_user
@@ -50,8 +61,8 @@ module Api
 
       # GET /users/1
       api :GET, '/users/:id', 'Show one user'
-      param :id, :number, 'The numeric ID of the user to retrieve'
-      error code: 404, desc: 'Not found'
+      param :id, :number, 'The numeric ID of the user to retrieve', required: true
+      error :not_found, 'User not found'
       returns :user_response
       def show
         render  json: @user,
@@ -66,9 +77,12 @@ module Api
                 }
       end
 
-      api :POST, '/users'
+      api :POST, '/users', 'Create a new regular user'
+      param_group :user_creation_params
+      error :forbidden, 'Logged in users should not be able to create a new user'
+      error :unprocessable_entity, 'Could not create the user'
+      returns :user_response
       def create
-        ## TODO: Maybe admins could create users...
         return head :forbidden unless current_user.nil?
 
         @user = User.new(user_params)
@@ -86,7 +100,15 @@ module Api
         end
       end
 
-      # PATCH/PUT /users/1
+      api :PATCH, '/users/:id', 'Update a user'
+      api :PUT, '/users/:id', 'Update a user (see PATCH)'
+      description 'Role updates are reserved to ADMINs.'
+      param :id, :number, 'The numeric ID of the user to update', required: true
+      param_group :user_update_params
+      error :unauthorized, 'On anonymous requests'
+      error :forbidden, 'Logged in user does not have permission to update the user'
+      error :unprocessable_entity, 'Could not save changes to the user'
+      returns :user_response
       def update
         authorize @user
         new_user_params = user_params
@@ -110,13 +132,20 @@ module Api
         end
       end
 
-      # DELETE /users/1
+      api :DELETE, '/users/:id', 'Does not quite work yet'
+      param :id, :number, 'The numeric ID of the user to delete', required: true
       def destroy
         authorize @user
         # TODO: Maybe consider blanking out info and deactivating rather than deleting outright.
         # @user.destroy
       end
 
+      api :GET, '/users/whoami', 'Returns the currently logged-in user'
+      returns code: :ok do
+        param_group :user_response
+        property :verification_token, String, required: false, allow_nil: true
+      end
+      error :no_content, 'On anonymous requests'
       def whoami
         @user = current_user
         if @user.nil?
@@ -127,12 +156,15 @@ module Api
         end
       end
 
+      api :POST, '/users/verify_email', 'Email verification'
+      param :token, String, 'Verification token as emailed on user registration', required: true
+      error :not_found, 'The user to be verified was not found'
       def verify_email
         token = params.require(%i[token])
 
         @user = User.find_by(verification_token: token)
         if @user.nil?
-          head :unauthorized
+          head :not_found
         else
           @user.verification_token = nil
           @user.email_verified = true
@@ -141,7 +173,15 @@ module Api
         end
       end
 
-      # POST /login
+      api :POST, '/login', 'Login with credentials'
+      param :email, String, 'Email address used as login', required: true
+      param :password, String, 'Password', required: true
+      error :forbidden, 'Invalid credentials'
+      returns code: :ok do
+        property :message, String, required: true
+        property :user_id, String, required: true
+        property :token, String, 'Bearer token', required: true
+      end
       def login
         params.require(%i[email password])
 
@@ -156,7 +196,7 @@ module Api
         end
       end
 
-      # POST /logout
+      api :POST, '/logout', 'Logout'
       def logout
         @user = current_user
         skip_authorization if @user.nil?
