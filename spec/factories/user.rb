@@ -3,12 +3,11 @@ FactoryBot.define do
     email { Faker::Internet.email }
     given_name { Faker::Name.first_name }
     family_name { Faker::Name.last_name }
+    gender { [nil, 'male', 'female', 'other', 'unspecified'].sample }
     password { Faker::Internet.password }
 
     factory :admin do
-      after(:build) do |user|
-        user.role = 'ADMIN'
-      end
+      role { 'ADMIN' }
     end
   end
 end

@@ -48,6 +48,11 @@ RSpec.context 'When logged out' do
       expect(response).to have_http_status(:created)
     end
 
+    it 'only creates regular users' do
+      post '/api/users', params: { user: FactoryBot.attributes_for(:admin) }
+      expect(json['role']).to eq('USER')
+    end
+
     ### TODO: Maybe have checks for all the parameters
 
     it 'does not return the password digest' do
@@ -186,6 +191,11 @@ RSpec.context 'When logged in' do
         put "/api/users/#{@user.id}", params: { user: { old_password: 'wrongtestpassword', password: 'newpassword!' } }, headers: { **@auth_headers }
         expect(response).to have_http_status(:forbidden)
       end
+
+      it 'fails to update own role' do
+        put "/api/users/#{@user.id}", params: { user: { role: 'TEST_ADMIN' } }, headers: { **@auth_headers }
+        expect(User.find(@user.id).role).to eq('USER')
+      end
     end
 
     describe 'other user update' do
@@ -209,6 +219,11 @@ RSpec.context 'When logged in' do
       it 'does not update the password when the old_password is wrong' do
         put "/api/users/#{@other_user.id}", params: { user: { old_password: 'wrongtestpassword', password: 'newpassword!' } }, headers: { **@auth_headers }
         expect(response).to have_http_status(:forbidden)
+      end
+
+      it 'fails to update role' do
+        put "/api/users/#{@other_user.id}", params: { user: { role: 'TEST_ADMIN' } }, headers: { **@auth_headers }
+        expect(User.find(@other_user.id).role).to eq('USER')
       end
     end
 
@@ -296,6 +311,11 @@ RSpec.context 'When logged in' do
         put "/api/users/#{@admin.id}", params: { user: { old_password: 'wrongtestpassword', password: 'newpassword!' } }, headers: { **@auth_headers }
         expect(response).to have_http_status(:forbidden)
       end
+
+      it 'can update own role' do
+        put "/api/users/#{@admin.id}", params: { user: { role: 'USER' } }, headers: { **@auth_headers }
+        expect(User.find(@admin.id).role).to eq('USER')
+      end
     end
 
     describe 'other user update' do
@@ -317,8 +337,13 @@ RSpec.context 'When logged in' do
       end
 
       it 'does not update the password when the old_password is wrong' do
-        put "/api/users/#{@user.id}", params: { user: { old_password: 'wrongtestpassword', password: 'newpassword!' } }, headers: { **@auth_headers }
+        put "/api/users/#{@other_user.id}", params: { user: { old_password: 'wrongtestpassword', password: 'newpassword!' } }, headers: { **@auth_headers }
         expect(response).to have_http_status(:forbidden)
+      end
+
+      it 'can update role' do
+        put "/api/users/#{@other_user.id}", params: { user: { role: 'TEST_ADMIN' } }, headers: { **@auth_headers }
+        expect(User.find(@other_user.id).role).to eq('TEST_ADMIN')
       end
     end
   end

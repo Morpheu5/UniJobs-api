@@ -4,6 +4,7 @@ require 'api_constraints'
 
 Rails.application.routes.draw do
 
+  apipie
   namespace :api do
     root 'root#index'
 

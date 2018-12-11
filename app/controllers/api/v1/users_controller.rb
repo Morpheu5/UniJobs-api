@@ -8,7 +8,33 @@ module Api
       before_action :set_user, only: %i[show update destroy]
       after_action :verify_authorized, except: %i[index show create login verify_email]
 
-      # GET /users
+      def_param_group :user do
+        property :email, String, required: true
+        property :given_name, String
+        property :family_name, String
+        property :role, String, required: true
+        property :gender, ['male', 'female', 'other', 'unspecified']
+        property :email_verified, [true, false], required: true
+        property :created_at, String, required: true
+        property :updated_at, String, required: true
+      end
+
+      def_param_group :user_response do
+        property :id, Integer, required: true
+        property :email, String, required: true
+        property :given_name, String, required: false
+        property :family_name, String, required: false
+        property :role, String, required: true
+        property :gender, ['male', 'female', 'other', 'unspecified']
+        property :email_verified, [true, false], required: true
+        property :created_at, String, required: true
+        property :updated_at, String, required: true
+      end
+
+      api :GET, '/users', 'List users'
+      error code: 401, desc: 'Unauthorized'
+      error code: 403, desc: 'Forbidden'
+      returns :array_of => :user_response, code: 200, desc: 'All the users'
       def index
         @user = current_user
         if @user.nil?
@@ -23,6 +49,10 @@ module Api
       end
 
       # GET /users/1
+      api :GET, '/users/:id', 'Show one user'
+      param :id, :number, 'The numeric ID of the user to retrieve'
+      error code: 404, desc: 'Not found'
+      returns :user_response
       def show
         render  json: @user,
                 except: %i[password_digest verification_token],
@@ -36,12 +66,14 @@ module Api
                 }
       end
 
-      # POST /users
+      api :POST, '/users'
       def create
         ## TODO: Maybe admins could create users...
         return head :forbidden unless current_user.nil?
 
         @user = User.new(user_params)
+        # Force new user's role to be USER, can be upgraded later
+        @user.role = 'USER'
         @user.verification_token = SecureRandom.urlsafe_base64(8)
         if @user.save
           # TODO: Add locale info
@@ -57,11 +89,13 @@ module Api
       # PATCH/PUT /users/1
       def update
         authorize @user
-        if user_params[:old_password]
+        new_user_params = user_params
+        new_user_params[:role] = @user.role unless (current_user.role == 'ADMIN' or current_user.id != @user.id)
+        if new_user_params[:old_password]
           return head :forbidden unless @user == current_user
           # Re-check that the user has entered the right current password
-          if @user&.authenticate(user_params[:old_password])
-            if @user.update(password: user_params[:password])
+          if @user&.authenticate(new_user_params[:old_password])
+            if @user.update(password: new_user_params[:password])
               render json: @user, except: %i[password_digest verification_token]
             else
               render json: @user.errors, status: :unprocessable_entity
@@ -69,7 +103,7 @@ module Api
           else
             head :forbidden
           end
-        elsif @user.update(user_params)
+        elsif @user.update(new_user_params)
           render json: @user, except: %i[password_digest verification_token]
         else
           render json: @user.errors, status: :unprocessable_entity
@@ -149,7 +183,7 @@ module Api
 
       # Only allow a trusted parameter "white list" through.
       def user_params
-        params.require(:user).permit(:email, :given_name, :family_name, :password, :old_password, :gender)
+        params.require(:user).permit(:email, :given_name, :family_name, :password, :old_password, :gender, :role)
       end
     end
   end
