@@ -20,6 +20,11 @@ module Api
         I18n.locale = params[:locale] || I18n.default_locale
       end
 
+      api :POST, '/job_reporting', 'Report a URL with a job offer'
+      param :data, Hash, required: true do
+        param :url, String, 'A well formed URL of the job offer', required: true
+      end
+      error :bad_request, 'If an invalid URL is provided'
       def job_reporting
         job_report = params.require(:data).permit(:url)
         r = /^https?:\/\/.+$/i
