@@ -1,4 +1,4 @@
-FROM ruby:2.5
+FROM ruby:2.6
 
 ENV RAILS_ENV=production
 ENV RAILS_LOG_TO_STDOUT=1
