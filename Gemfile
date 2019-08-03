@@ -52,6 +52,14 @@ group :development do
   
   gem 'factory_bot_rails'
   gem 'faker'
+
+  gem 'rcodetools', require: false
+  gem 'solargraph', require: false
+  gem 'rubocop', require: false
+  gem 'irb', require: false
+
+  gem 'ruby-debug-ide'
+  gem 'debase'
 end
 
 group :test do
