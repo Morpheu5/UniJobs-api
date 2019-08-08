@@ -24,6 +24,8 @@ Rails.application.routes.draw do
       get 'contents/slug/:slug', to: 'contents#find_by_slug'
 
       resources :organizations do
+        # get 'organizations', to: 'organizations#free_text'
+        get 'organizations/tree', to: 'organizations#free_text_tree'
         member do
           get 'ancestors'
         end
