@@ -5,13 +5,21 @@ class Organization < ApplicationRecord
   has_many :organizations, inverse_of: :organization, foreign_key: 'parent_id'
   has_many :contents, inverse_of: :contents
 
+  validate :unique_per_parent
+
+  def unique_per_parent
+    unless Organization.where(parent_id: parent_id, short_name: short_name).empty?
+      errors.add(:short_name, "must be unique for parent_id #{parent_id}")
+    end
+  end
+
   has_and_belongs_to_many :users
 
   def ancestors
     Organization.find_ancestors(id: id)
   end
 
-  def self.find_by(name_parts:)
+  def self.find_by_name_parts(name_parts)
     prepared_name_parts = name_parts.map { |n| "%#{n}%" }
     sql_query = <<-SQL
       WITH RECURSIVE search_tree AS (
