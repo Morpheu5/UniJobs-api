@@ -3,11 +3,32 @@
 module Api
   module V1
     class OrganizationsController < ApplicationController
+      include ::V1::Authenticatable
+
+      before_action :set_organization, only: %i[show update destroy]
+      after_action :verify_authorized, only: %i[create]
+
       def_param_group :organization_response do
         property :id, :number, 'Organization ID', required: true
         property :parent_id, :number, 'ID of the parent organization, or null', allow_nil: true
         property :name, String, 'Full name of the organization', required: true
         property :short_name, String, 'Short name of the organization', required: true
+      end
+
+      def_param_group :organization_creation_params do
+        param :data, Hash do
+          param :name, String, 'Long name (e.g., Università di Padova)', required: true
+          param :short_name, String, 'Short name (e.g., UniPD)', required: true
+          param :parent_id, :number, 'ID of the parent organization, or null', required: false, allow_nil: true
+        end
+      end
+
+      def_param_group :organization_update_params do
+        param :data, Hash do
+          param :name, String, 'Long name (e.g., Università di Padova)', required: false, allow_nil: true
+          param :short_name, String, 'Short name (e.g., UniPD)', required: false, allow_nil: true
+          param :parent_id, :number, 'ID of the parent organization, or null', required: false, allow_nil: true
+        end
       end
 
       api :GET, '/organizations/tree', 'Free-text hierarchical organization search'
@@ -37,7 +58,6 @@ module Api
       end
       error :not_found
       def show
-        @organization = Organization.find(params[:id])
         render json: @organization, include: { ancestors: {} }
       end
 
@@ -49,8 +69,15 @@ module Api
         render json: @ancestors
       end
 
+      api :POST, '/organizations', 'Create a new Organization'
+      param_group :organization_creation_params
+      error :forbidden, 'Only admins and editors can create new Organizations'
+      error :unprocessable_entity, 'Could not create the Organization'
+      returns :organization_response, desc: 'The details of the newly created Organization'
       def create
         @organization = Organization.new(organization_params)
+        authorize @organization
+
         if @organization.save
           render json: @organization,
                  include: { ancestors: {} },
@@ -60,7 +87,39 @@ module Api
         end
       end
 
+      api :PATCH, '/organizations/:id', 'Update an Organization'
+      api :PUT, '/organizations/:id', 'Update an Organization (see PATCH)'
+      param :id, :number, 'The numeric ID of the Organization', required: true
+      param_group :organization_update_params
+      error :unauthorized, 'On anonymous requests'
+      error :forbidden, 'Logged in user does not have permission to update the Organization'
+      error :unprocessable_entity, 'Could not save changes to the Organization'
+      returns :organization_response, desc: 'The details of the updated Organization'
+      def update
+        authorize @organization
+
+        if @organization.save
+          render json: @organization,
+                 include: { ancestors: {} },
+                 except: %i[created_at updated_at]
+        else
+          render json: @organization.errors, status: :unprocessable_entity
+        end
+      end
+
+      api :DELETE, '/organizations/:id', 'Delete an Organization'
+      param :id, :number, 'The numeric ID of the Organization', required: true
+      def destroy
+        authorize @organization
+        # TODO Tombstone maybe
+        # @organization.destroy
+      end
+
       private
+
+      def set_organization
+        @organization = Organization.find(params[:id])
+      end
 
       def organization_params
         params.require(:data).permit(:name, :short_name, :parent_id)

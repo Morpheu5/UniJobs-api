@@ -77,8 +77,7 @@ module Api
       # POST /contents
       def create
         @content = Content.new(content_params)
-        # authorize @content
-        skip_authorization
+        authorize @content
 
         if @content.save
           render  json: @content,

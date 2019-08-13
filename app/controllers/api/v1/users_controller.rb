@@ -26,7 +26,7 @@ module Api
           param :given_name, String
           param :family_name, String
           param :gender, ['male', 'female', 'other', 'unspecified'], allow_nil: true
-          param :role, ['USER', 'ADMIN']
+          param :role, ['USER', 'EDITOR', 'ADMIN']
         end
       end
 
@@ -35,7 +35,7 @@ module Api
         property :email, String, required: true
         property :given_name, String, required: false
         property :family_name, String, required: false
-        property :role, ['USER', 'ADMIN'], required: true
+        property :role, ['USER', 'EDITOR', 'ADMIN'], required: true
         property :gender, ['male', 'female', 'other', 'unspecified'], allow_nil: true
         property :email_verified, [true, false], required: true
         property :created_at, String, required: true
