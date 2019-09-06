@@ -8,7 +8,8 @@ class Organization < ApplicationRecord
   validate :unique_per_parent
 
   def unique_per_parent
-    unless Organization.where(parent_id: parent_id, short_name: short_name).empty?
+    orgs = Organization.where(parent_id: parent_id, short_name: short_name)
+    unless orgs.empty? || (orgs.size == 1 && orgs[0] == self)
       errors.add(:short_name, "must be unique for parent_id #{parent_id}")
     end
   end
