@@ -98,6 +98,7 @@ module Api
       def update
         authorize @organization
 
+        @organization.assign_attributes(organization_params)
         if @organization.save
           render json: @organization,
                  include: { ancestors: {} },
