@@ -25,12 +25,14 @@ Rails.application.routes.draw do
 
       resources :organizations do
         # get 'organizations', to: 'organizations#free_text'
-        get 'organizations/tree', to: 'organizations#free_text_tree'
+      get 'organizations/tree', to: 'organizations#free_text_tree'
+      resources :organizations do
         member do
           get 'ancestors'
         end
       end
     end
   end
+end
 
 end
