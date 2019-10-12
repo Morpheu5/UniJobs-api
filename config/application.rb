@@ -34,6 +34,8 @@ module Api
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
 
+    config.public_file_server.enabled = true
+
     config.action_dispatch.rescue_responses["Pundit::NotAuthorizedError"] = :forbidden
 
     config.site_baseurl = Rails.env.production? ? ENV['SITE_BASEURL'] : 'http://localhost:8080'

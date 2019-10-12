@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Organization < ApplicationRecord
+  include ImageUploader::Attachment(:logo)
+
   belongs_to :organization, inverse_of: :organization, foreign_key: 'parent_id', optional: true
   has_many :organizations, inverse_of: :organization, foreign_key: 'parent_id'
   has_many :contents, inverse_of: :contents
@@ -9,9 +11,7 @@ class Organization < ApplicationRecord
 
   def unique_per_parent
     orgs = Organization.where(parent_id: parent_id, short_name: short_name)
-    unless orgs.empty? || (orgs.size == 1 && orgs[0] == self)
-      errors.add(:short_name, "must be unique for parent_id #{parent_id}")
-    end
+    errors.add(:short_name, "must be unique for parent_id #{parent_id}") unless orgs.empty? || (orgs.size == 1 && orgs[0] == self)
   end
 
   has_and_belongs_to_many :users

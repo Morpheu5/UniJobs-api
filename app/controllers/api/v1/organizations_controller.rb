@@ -58,7 +58,7 @@ module Api
       end
       error :not_found
       def show
-        render json: @organization, include: { ancestors: {} }
+        render json: @organization, include: { ancestors: {} }, except: %i[logo_data], methods: %i[logo_url]
       end
 
       api :GET, '/organizations/:id/ancestors', 'Retrieve the ancestors of an organization'
@@ -81,7 +81,8 @@ module Api
         if @organization.save
           render json: @organization,
                  include: { ancestors: {} },
-                 except: %i[created_at updated_at]
+                 except: %i[logo_data created_at updated_at],
+                 methods: %i[logo_url]
         else
           render json: @organization.errors, status: :unprocessable_entity
         end
@@ -102,7 +103,8 @@ module Api
         if @organization.save
           render json: @organization,
                  include: { ancestors: {} },
-                 except: %i[created_at updated_at]
+                 except: %i[logo_data created_at updated_at],
+                 methods: %i[logo_url]
         else
           render json: @organization.errors, status: :unprocessable_entity
         end
@@ -123,7 +125,7 @@ module Api
       end
 
       def organization_params
-        params.require(:data).permit(:name, :short_name, :parent_id)
+        params.require(:data).permit(:name, :short_name, :parent_id, :logo, :remove_logo)
       end
 
       def make_tree(list)
@@ -132,9 +134,8 @@ module Api
 
         keys.each do |k|
           next unless !hash[k]['parent_id'].nil? && !hash[k].nil?
-          if hash[hash[k]['parent_id']].nil?
-            hash[hash[k]['parent_id']] = Organization.find(k).attributes
-          end
+
+          hash[hash[k]['parent_id']] = Organization.find(k).attributes if hash[hash[k]['parent_id']].nil?
           hash[hash[k]['parent_id']]['children'] = [*hash[hash[k]['parent_id']]['children'], hash[k]]
         end
 

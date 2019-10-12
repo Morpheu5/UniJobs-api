@@ -3,7 +3,6 @@
 require 'api_constraints'
 
 Rails.application.routes.draw do
-
   apipie
 
   namespace :api do
@@ -23,8 +22,6 @@ Rails.application.routes.draw do
       end
       get 'contents/slug/:slug', to: 'contents#find_by_slug'
 
-      resources :organizations do
-        # get 'organizations', to: 'organizations#free_text'
       get 'organizations/tree', to: 'organizations#free_text_tree'
       resources :organizations do
         member do
@@ -33,6 +30,4 @@ Rails.application.routes.draw do
       end
     end
   end
-end
-
 end
