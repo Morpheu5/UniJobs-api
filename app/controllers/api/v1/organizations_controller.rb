@@ -58,7 +58,13 @@ module Api
       end
       error :not_found
       def show
-        render json: @organization, include: { ancestors: {} }, except: %i[logo_data], methods: %i[logo_url]
+        org = @organization
+        if params.key?(:recursive_logo)
+          org = Organization.find(org.parent_id) while !org.parent_id.nil? && org.logo_url.blank?
+        end
+        logo_url = org.logo_url
+        json = @organization.as_json include: { ancestors: {} }, except: %i[logo_data]
+        render json: { **json.symbolize_keys, logo_url: logo_url }
       end
 
       api :GET, '/organizations/:id/ancestors', 'Retrieve the ancestors of an organization'
