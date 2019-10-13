@@ -63,6 +63,8 @@ class Organization < ApplicationRecord
       WHERE NOT t.id = ANY(path)
     ) SELECT id, name, short_name, parent_id FROM tree ORDER BY array_length(path, 1) DESC
     SQL
-    find_by_sql([sql_query, id])
+    find_by_sql([sql_query, id]).map do |o|
+      find(o.id)
+    end
   end
 end

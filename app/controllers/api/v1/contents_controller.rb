@@ -22,8 +22,14 @@ module Api
                 except: %i[organization_id],
                 include: {
                   organization: {
-                    except: %i[parent_id created_at updated_at],
-                    include: { ancestors: {} }
+                    except: %i[parent_id created_at updated_at logo_data],
+                    include: {
+                      ancestors: {
+                        except: %i[parent_id created_at updated_at logo_data],
+                        methods: %i[logo_url]
+                      }
+                    },
+                    methods: %i[logo_url]
                   }
                 }
       end
@@ -42,8 +48,14 @@ module Api
                 except: %i[organization_id updated_at],
                 include: {
                   organization: {
-                    except: %i[parent_id created_at updated_at],
-                    include: { ancestors: {} }
+                    except: %i[parent_id created_at updated_at logo_data],
+                    include: {
+                      ancestors: {
+                        except: %i[parent_id created_at updated_at logo_data],
+                        methods: %i[logo_url]
+                      }
+                    },
+                    methods: %i[logo_url]
                   },
                   content_blocks: {
                     except: %i[content_id]
@@ -63,10 +75,14 @@ module Api
                 except: %i[organization_id],
                 include: {
                   organization: {
-                    except: %i[parent_id created_at updated_at],
+                    except: %i[parent_id created_at updated_at logo_data],
                     include: {
-                      ancestors: {}
-                    }
+                      ancestors: {
+                        except: %i[parent_id created_at updated_at logo_data],
+                        methods: %i[logo_url]
+                      }
+                    },
+                    methods: %i[logo_url]
                   },
                   content_blocks: {
                     except: %i[content_id]
