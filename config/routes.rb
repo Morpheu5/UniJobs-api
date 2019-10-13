@@ -5,7 +5,7 @@ require 'api_constraints'
 Rails.application.routes.draw do
   apipie
 
-  namespace :api do
+  scope module: :api do
     root 'root#index'
 
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
