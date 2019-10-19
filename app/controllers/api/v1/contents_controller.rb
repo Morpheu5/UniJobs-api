@@ -96,6 +96,7 @@ module Api
         authorize @content
 
         if @content.save
+          SocialPost.create(content: @content)
           render  json: @content,
                   except: %i[organization_id updated_at],
                   include: {

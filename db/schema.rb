@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_10_09_144857) do
+ActiveRecord::Schema.define(version: 2019_10_18_154657) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -69,6 +69,15 @@ ActiveRecord::Schema.define(version: 2019_10_09_144857) do
     t.index ["user_id"], name: "index_organizations_users_on_user_id"
   end
 
+  create_table "social_posts", force: :cascade do |t|
+    t.bigint "content_id", null: false
+    t.jsonb "status"
+    t.text "messages"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["content_id"], name: "index_social_posts_on_content_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", null: false
     t.string "given_name"
@@ -88,4 +97,5 @@ ActiveRecord::Schema.define(version: 2019_10_09_144857) do
   add_foreign_key "contents", "organizations"
   add_foreign_key "contents", "users"
   add_foreign_key "organizations", "organizations", column: "parent_id"
+  add_foreign_key "social_posts", "contents"
 end

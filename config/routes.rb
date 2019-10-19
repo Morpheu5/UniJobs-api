@@ -28,6 +28,9 @@ Rails.application.routes.draw do
           get 'ancestors'
         end
       end
+
+      get 'social_posts/cycle', to: 'social_posts#cycle'
+      resources :social_posts
     end
   end
 end
