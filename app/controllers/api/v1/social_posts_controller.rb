@@ -3,23 +3,25 @@
 module Api
   module V1
     class SocialPostsController < ApplicationController
+      include ::V1::Authenticatable
       before_action :set_social_post, only: %i[show update destroy]
 
       # GET /social_posts
       def index
-        @social_posts = SocialPost.all
+        @social_posts = authorize SocialPost.all
 
         render json: @social_posts
       end
 
       # GET /social_posts/1
       def show
+        authorize @social_post
         render json: @social_post
       end
 
       # POST /social_posts
       def create
-        @social_post = SocialPost.new(social_post_params)
+        @social_post = authorize SocialPost.new(social_post_params)
 
         if @social_post.save
           render json: @social_post, status: :created, location: @social_post
@@ -30,6 +32,7 @@ module Api
 
       # PATCH/PUT /social_posts/1
       def update
+        authorize @social_post
         if @social_post.update(social_post_params)
           render json: @social_post
         else
@@ -39,10 +42,12 @@ module Api
 
       # DELETE /social_posts/1
       def destroy
+        authorize @social_post
         @social_post.destroy
       end
 
       def cycle
+        authorize SocialPost
         posts = SocialPost.joins(:content).merge(Content.order(created_at: :asc))
         return if posts.empty?
 
