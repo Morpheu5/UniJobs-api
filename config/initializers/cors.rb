@@ -10,7 +10,7 @@
 
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    origins   Rails.env.development? ? ['localhost'] : ['www.unijobs.it', 'editor.unijobs.it']
+    origins   Rails.env.development? ? [%r{https?://localhost.*}] : [%r{https://.*\.unijobs\.it}]
 
     resource  '*',
               headers: :any,
