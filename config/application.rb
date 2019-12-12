@@ -40,6 +40,6 @@ module Api
 
     config.site_baseurl = Rails.env.production? ? ENV['SITE_BASEURL'] : 'http://localhost:8080'
 
-    config.api_version = '0.3.1'
+    config.api_version = '0.3.2'
   end
 end
