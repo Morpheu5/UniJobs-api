@@ -37,7 +37,7 @@ gem 'versionist'
 
 gem 'apipie-rails'
 
-gem 'shrine', '~> 2.0'
+gem 'shrine', '~> 3.3'
 
 gem 'twitter', '~> 6.2'
 
